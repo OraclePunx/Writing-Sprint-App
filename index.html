@@ -5,16 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sprint</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap');
-
   :root {
-    --bg: #1a1a1e;
-    --surface: #222226;
-    --surface-hover: #2a2a2f;
-    --border: #333338;
-    --text: #d4d4d8;
-    --text-dim: #71717a;
-    --text-faint: #52525b;
+    --bg: #191919;
+    --surface: #202020;
+    --surface-hover: #2a2a2a;
+    --border: #2e2e2e;
+    --text: rgba(255, 255, 255, 0.81);
+    --text-dim: rgba(255, 255, 255, 0.443);
+    --text-faint: rgba(255, 255, 255, 0.282);
     --accent: #c29a5f;
     --accent-dim: rgba(194, 154, 95, 0.15);
     --accent-glow: rgba(194, 154, 95, 0.08);
@@ -25,7 +23,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -47,7 +45,7 @@
   .timer-block { text-align: center; padding: 1.5rem 0; }
 
   .timer-display {
-    font-family: 'EB Garamond', serif;
+    font-family: inherit;
     font-size: 4.5rem;
     font-weight: 400;
     letter-spacing: 0.04em;
@@ -70,7 +68,7 @@
   .duration-presets { display: flex; gap: 0.25rem; margin-right: 0.75rem; }
 
   .preset-btn {
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.75rem;
     font-weight: 400;
     padding: 0.35rem 0.65rem;
@@ -86,7 +84,7 @@
   .preset-btn:disabled { opacity: 0.4; cursor: default; }
 
   .action-btn {
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.8rem;
     font-weight: 500;
     padding: 0.45rem 1.2rem;
@@ -129,7 +127,7 @@
   .prompt-actions { display: flex; gap: 0.35rem; }
 
   .prompt-action-btn {
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.7rem;
     padding: 0.2rem 0.55rem;
     background: transparent;
@@ -149,7 +147,7 @@
   }
 
   .prompt-text {
-    font-family: 'EB Garamond', serif;
+    font-family: inherit;
     font-size: 1.15rem;
     font-style: italic;
     color: var(--text);
@@ -158,7 +156,7 @@
   .prompt-text.empty {
     color: var(--text-faint);
     font-style: normal;
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.85rem;
   }
 
@@ -170,7 +168,7 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 1.2rem;
-    font-family: 'EB Garamond', serif;
+    font-family: inherit;
     font-size: 1.1rem;
     line-height: 1.7;
     color: var(--text);
@@ -248,7 +246,7 @@
   }
 
   .manager-close {
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.8rem;
     background: transparent;
     border: 1px solid var(--border);
@@ -268,7 +266,7 @@
 
   .manager-input {
     flex: 1;
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.85rem;
     padding: 0.45rem 0.7rem;
     background: var(--surface);
@@ -281,7 +279,7 @@
   .manager-input::placeholder { color: var(--text-faint); }
 
   .manager-add-btn {
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.8rem;
     padding: 0.45rem 0.9rem;
     background: var(--accent-dim);
@@ -309,7 +307,7 @@
   .manager-item:hover { background: var(--surface); }
 
   .manager-item-text {
-    font-family: 'EB Garamond', serif;
+    font-family: inherit;
     font-size: 1rem;
     font-style: italic;
     color: var(--text);
@@ -318,7 +316,7 @@
   }
 
   .manager-remove {
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.65rem;
     padding: 0.15rem 0.4rem;
     background: transparent;
@@ -339,7 +337,7 @@
   }
 
   .manager-reset {
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 0.65rem;
     padding: 0.15rem 0.45rem;
     background: transparent;
@@ -432,7 +430,7 @@
 <script>
   // ---- CONFIGURATION ----
   // Replace this with your Cloudflare Worker URL after deploying
-  const WORKER_URL = 'https://sprint-proxy.mx-stewart01.workers.dev';
+  const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
   // ---- END CONFIGURATION ----
 
   // Default prompts
