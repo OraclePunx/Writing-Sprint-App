@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #1a1a1e;
+    --surface: #222226;
+    --surface-hover: #2a2a2f;
+    --border: #333338;
+    --text: #d4d4d8;
+    --text-dim: #71717a;
+    --text-faint: #52525b;
+    --accent: #c29a5f;
+    --accent-dim: rgba(194, 154, 95, 0.15);
+    --accent-glow: rgba(194, 154, 95, 0.08);
+    --red: #b35a5a;
+    --green: #5a9a6e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Timer */
+  .timer-block { text-align: center; padding: 1.5rem 0; }
+
+  .timer-display {
+    font-family: 'EB Garamond', serif;
+    font-size: 4.5rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 1rem;
+    transition: color 0.3s;
+  }
+  .timer-display.running { color: var(--accent); }
+  .timer-display.danger { color: var(--red); }
+
+  .timer-controls {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .duration-presets { display: flex; gap: 0.25rem; margin-right: 0.75rem; }
+
+  .preset-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    padding: 0.35rem 0.65rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .preset-btn:hover { background: var(--surface-hover); color: var(--text); }
+  .preset-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .preset-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .action-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.45rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid;
+  }
+  .btn-start { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+  .btn-start:hover { background: rgba(194, 154, 95, 0.25); }
+  .btn-stop { background: rgba(179, 90, 90, 0.15); border-color: var(--red); color: var(--red); }
+  .btn-stop:hover { background: rgba(179, 90, 90, 0.25); }
+  .btn-reset { background: var(--surface); border-color: var(--border); color: var(--text-dim); }
+  .btn-reset:hover { background: var(--surface-hover); color: var(--text); }
+
+  /* Prompt */
+  .prompt-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+  }
+
+  .prompt-actions { display: flex; gap: 0.35rem; }
+
+  .prompt-action-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .prompt-action-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .prompt-content {
+    padding: 1rem;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .prompt-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .prompt-text.empty {
+    color: var(--text-faint);
+    font-style: normal;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+  }
+
+  /* Writing area */
+  .writing-area {
+    width: 100%;
+    min-height: 320px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.2rem;
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .writing-area:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
+  .writing-area::placeholder { color: var(--text-faint); font-style: italic; }
+  .writing-area:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Stats */
+  .stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .stat { font-size: 0.75rem; color: var(--text-dim); font-weight: 300; }
+  .stat strong { color: var(--text); font-weight: 500; }
+  .stat .highlight { color: var(--accent); font-weight: 500; }
+
+  /* History */
+  .history-block { border-top: 1px solid var(--border); padding-top: 1rem; }
+  .history-header {
+    font-size: 0.7rem; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-faint); margin-bottom: 0.6rem;
+  }
+  .history-empty { font-size: 0.8rem; color: var(--text-faint); font-style: italic; }
+  .history-list { display: flex; flex-direction: column; gap: 0.35rem; }
+  .history-item {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; color: var(--text-dim); padding: 0.3rem 0;
+  }
+  .history-item span:first-child { color: var(--text); }
+
+  /* Prompt manager panel */
+  .manager-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+  .manager-overlay.open { display: flex; }
+
+  .manager-panel {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .manager-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .manager-title {
+    font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-faint);
+  }
+
+  .manager-close {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 3px;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+  }
+  .manager-close:hover { color: var(--text); border-color: var(--text-dim); }
+
+  .manager-add {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .manager-input {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    padding: 0.45rem 0.7rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    outline: none;
+  }
+  .manager-input:focus { border-color: var(--accent); }
+  .manager-input::placeholder { color: var(--text-faint); }
+
+  .manager-add-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    padding: 0.45rem 0.9rem;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .manager-add-btn:hover { background: rgba(194, 154, 95, 0.25); }
+
+  .manager-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+  }
+
+  .manager-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.5rem 1rem;
+    gap: 0.75rem;
+    transition: background 0.1s;
+  }
+  .manager-item:hover { background: var(--surface); }
+
+  .manager-item-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.45;
+    flex: 1;
+  }
+
+  .manager-remove {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    border-radius: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+  .manager-remove:hover { border-color: var(--red); color: var(--red); }
+
+  .manager-count {
+    font-size: 0.7rem;
+    color: var(--text-faint);
+    padding: 0.4rem 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .manager-reset {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-faint);
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+  }
+  .manager-reset:hover { border-color: var(--red); color: var(--red); }
+
+  /* Focus mode */
+  .app.focus-mode .prompt-block,
+  .app.focus-mode .history-block { opacity: 0.3; transition: opacity 0.3s; }
+  .app.focus-mode .prompt-block:hover,
+  .app.focus-mode .history-block:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="timer-block">
+    <div class="timer-display" id="timerDisplay">05:00</div>
+    <div class="timer-controls">
+      <div class="duration-presets">
+        <button class="preset-btn" data-minutes="1">1m</button>
+        <button class="preset-btn" data-minutes="2">2m</button>
+        <button class="preset-btn" data-minutes="3">3m</button>
+        <button class="preset-btn active" data-minutes="5">5m</button>
+        <button class="preset-btn" data-minutes="10">10m</button>
+        <button class="preset-btn" data-minutes="15">15m</button>
+        <button class="preset-btn" data-minutes="20">20m</button>
+      </div>
+      <button class="action-btn btn-start" id="startBtn" onclick="toggleTimer()">Start</button>
+      <button class="action-btn btn-reset" onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <span class="prompt-label">Prompt</span>
+      <div class="prompt-actions">
+        <button class="prompt-action-btn" onclick="drawPrompt()">Draw</button>
+        <button class="prompt-action-btn" onclick="clearPrompt()">Clear</button>
+        <button class="prompt-action-btn" onclick="openManager()">Edit Deck</button>
+      </div>
+    </div>
+    <div class="prompt-content">
+      <div class="prompt-text empty" id="promptText">No prompt. Sprint on whatever you need to write.</div>
+    </div>
+  </div>
+
+  <div class="writing-block">
+    <textarea
+      class="writing-area"
+      id="writingArea"
+      placeholder="Start the timer to write."
+      oninput="updateWordCount()"
+      disabled
+    ></textarea>
+    <div class="stats-bar">
+      <span class="stat">Words: <strong id="wordCount">0</strong></span>
+      <span class="stat" id="wpmStat"></span>
+      <span class="stat" id="sessionWords"></span>
+    </div>
+  </div>
+
+  <div class="history-block">
+    <div class="history-header">Sessions</div>
+    <div id="historyList" class="history-empty">No completed sprints yet.</div>
+  </div>
+</div>
+
+<!-- Prompt Manager Overlay -->
+<div class="manager-overlay" id="managerOverlay">
+  <div class="manager-panel">
+    <div class="manager-top">
+      <span class="manager-title">Prompt Deck</span>
+      <button class="manager-close" onclick="closeManager()">Close</button>
+    </div>
+    <div class="manager-add">
+      <input class="manager-input" id="newPromptInput" type="text" placeholder="Write a new prompt" onkeydown="if(event.key==='Enter')addPrompt()">
+      <button class="manager-add-btn" onclick="addPrompt()">Add</button>
+    </div>
+    <div class="manager-list" id="managerList"></div>
+    <div class="manager-count" id="managerCount"></div>
+  </div>
+</div>
+
+<script>
+  // ---- CONFIGURATION ----
+  // Replace this with your Cloudflare Worker URL after deploying
+  const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
+  // ---- END CONFIGURATION ----
+
+  // Default prompts
+  const DEFAULT_PROMPTS = [
+    'Describe a room you have never set a scene in.',
+    'Write the view from a window at a time of day you rarely think about.',
+    'A character picks up an object they have not touched in years.',
+    'Write the sounds of a place without naming the place.',
+    'Describe a meal from the perspective of someone who did not want to be there.',
+    'A hand reaches for something on a high shelf. What is it, and why now?',
+    'Write a scene using only what your POV character can smell and hear.',
+    'No dialogue. Two characters in the same room. Make the tension legible.',
+    'Write a full scene in sentences of ten words or fewer.',
+    'Describe a landscape through the body: temperature, fatigue, hunger, breath.',
+    'Write a conversation where one character is lying and the reader knows it but the other character does not.',
+    'A scene told entirely through what the character notices about another person\'s hands.',
+    'Two people want incompatible things from the same conversation.',
+    'A character realizes mid-sentence that they are saying the wrong thing.',
+    'Someone does a small, practical kindness for a person they resent.',
+    'A character returns to a familiar place and finds one thing changed.',
+    'Someone is asked a direct question they were not prepared to answer honestly.',
+    'Two people walk somewhere together. One of them is about to leave for good.',
+    'Write the moment your protagonist first suppresses an honest reaction.',
+    'A scene where your POV character watches someone they care about do something ordinary.',
+    'Your protagonist explains something technical to someone who does not understand it.',
+    'Write the last five minutes before your protagonist falls asleep.',
+    'A character says something true in a way that makes it sound like a joke.',
+    'Your protagonist notices a detail about someone that contradicts what they believe about that person.',
+  ];
+
+  const STORAGE_KEY = 'sprint_prompts';
+
+  function loadPrompts() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try { return JSON.parse(stored); } catch(e) {}
+    }
+    return [...DEFAULT_PROMPTS];
+  }
+
+  function savePrompts() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
+  }
+
+  // State
+  let prompts = loadPrompts();
+  let duration = 5 * 60;
+  let remaining = duration;
+  let interval = null;
+  let running = false;
+  let sprintStartWordCount = 0;
+  let sessions = [];
+  let usedPromptIndices = [];
+
+  const timerDisplay = document.getElementById('timerDisplay');
+  const startBtn = document.getElementById('startBtn');
+  const writingArea = document.getElementById('writingArea');
+  const app = document.getElementById('app');
+
+  // Duration presets
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (running) return;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      duration = parseInt(btn.dataset.minutes) * 60;
+      remaining = duration;
+      renderTimer();
+    });
+  });
+
+  function renderTimer() {
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    timerDisplay.classList.toggle('running', running && remaining > 60);
+    timerDisplay.classList.toggle('danger', running && remaining <= 60);
+  }
+
+  function toggleTimer() {
+    if (running) stopTimer(); else startTimer();
+  }
+
+  function startTimer() {
+    running = true;
+    sprintStartWordCount = countWords();
+    startBtn.textContent = 'Pause';
+    startBtn.className = 'action-btn btn-stop';
+    app.classList.add('focus-mode');
+    writingArea.disabled = false;
+    writingArea.placeholder = 'Start writing.';
+    writingArea.focus();
+    document.querySelectorAll('.preset-btn').forEach(b => b.disabled = true);
+
+    interval = setInterval(() => {
+      remaining--;
+      renderTimer();
+      updateWPM();
+      if (remaining <= 0) finishSprint();
+    }, 1000);
+  }
+
+  function stopTimer() {
+    running = false;
+    clearInterval(interval);
+    writingArea.disabled = true;
+    startBtn.textContent = 'Resume';
+    startBtn.className = 'action-btn btn-start';
+    app.classList.remove('focus-mode');
+  }
+
+  function resetTimer() {
+    stopTimer();
+    remaining = duration;
+    startBtn.textContent = 'Start';
+    document.querySelectorAll('.preset-btn').forEach(b => b.disabled = false);
+    renderTimer();
+    document.getElementById('wpmStat').textContent = '';
+  }
+
+  function finishSprint() {
+    clearInterval(interval);
+    running = false;
+    writingArea.disabled = true;
+    app.classList.remove('focus-mode');
+
+    const wordsWritten = countWords() - sprintStartWordCount;
+    const mins = duration / 60;
+    const thinkingCount = (writingArea.value.toLowerCase().match(/\bthinking\b/g) || []).length;
+
+    sessions.push({
+      duration: mins,
+      words: wordsWritten,
+      wpm: mins > 0 ? Math.round(wordsWritten / mins) : 0,
+      thinking: thinkingCount,
+      time: new Date()
+    });
+
+    renderHistory();
+
+    startBtn.textContent = 'Start';
+    startBtn.className = 'action-btn btn-start';
+    remaining = duration;
+    document.querySelectorAll('.preset-btn').forEach(b => b.disabled = false);
+    renderTimer();
+
+    document.getElementById('sessionWords').innerHTML =
+      `Last sprint: <span class="highlight">${wordsWritten}</span> words`;
+
+    timerDisplay.style.color = 'var(--green)';
+    setTimeout(() => { timerDisplay.style.color = ''; }, 2000);
+
+    // Submit to Notion
+    submitToNotion({
+      title: `${mins}m sprint`,
+      duration: mins,
+      words: wordsWritten,
+      wpm: mins > 0 ? Math.round(wordsWritten / mins) : 0,
+      thinking: thinkingCount,
+      text: writingArea.value,
+    });
+  }
+
+  async function submitToNotion(data) {
+    const statusEl = document.getElementById('sessionWords');
+    if (WORKER_URL.includes('YOUR-WORKER-NAME')) {
+      // Not configured yet — skip silently
+      return;
+    }
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        statusEl.innerHTML += ' <span style="color:var(--green)">— saved to Notion</span>';
+      } else {
+        statusEl.innerHTML += ' <span style="color:var(--red)">— Notion save failed</span>';
+      }
+    } catch (e) {
+      statusEl.innerHTML += ' <span style="color:var(--red)">— Notion save failed</span>';
+    }
+  }
+
+  function countWords() {
+    const text = writingArea.value.trim();
+    if (!text) return 0;
+    return text.split(/\s+/).length;
+  }
+
+  function updateWordCount() {
+    document.getElementById('wordCount').textContent = countWords();
+  }
+
+  function updateWPM() {
+    const elapsed = duration - remaining;
+    if (elapsed < 10) return;
+    const currentWords = countWords() - sprintStartWordCount;
+    const wpm = Math.round(currentWords / (elapsed / 60));
+    document.getElementById('wpmStat').textContent = `${wpm} wpm`;
+  }
+
+  // Prompts
+  function drawPrompt() {
+    if (prompts.length === 0) return;
+    if (usedPromptIndices.length >= prompts.length) usedPromptIndices = [];
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * prompts.length);
+    } while (usedPromptIndices.includes(idx) && usedPromptIndices.length < prompts.length);
+    usedPromptIndices.push(idx);
+    const el = document.getElementById('promptText');
+    el.className = 'prompt-text';
+    el.textContent = prompts[idx];
+  }
+
+  function clearPrompt() {
+    const el = document.getElementById('promptText');
+    el.className = 'prompt-text empty';
+    el.textContent = 'No prompt. Sprint on whatever you need to write.';
+  }
+
+  // Prompt manager
+  function openManager() {
+    document.getElementById('managerOverlay').classList.add('open');
+    renderManager();
+  }
+
+  function closeManager() {
+    document.getElementById('managerOverlay').classList.remove('open');
+  }
+
+  function renderManager() {
+    const list = document.getElementById('managerList');
+    list.innerHTML = prompts.map((p, i) =>
+      `<div class="manager-item">
+        <span class="manager-item-text">${escapeHtml(p)}</span>
+        <button class="manager-remove" onclick="removePrompt(${i})">Remove</button>
+      </div>`
+    ).join('');
+    document.getElementById('managerCount').innerHTML =
+      `${prompts.length} prompt${prompts.length !== 1 ? 's' : ''} in deck` +
+      `<button class="manager-reset" onclick="resetPrompts()">Reset to defaults</button>`;
+  }
+
+  function addPrompt() {
+    const input = document.getElementById('newPromptInput');
+    const text = input.value.trim();
+    if (!text) return;
+    prompts.push(text);
+    savePrompts();
+    input.value = '';
+    renderManager();
+  }
+
+  function removePrompt(idx) {
+    prompts.splice(idx, 1);
+    usedPromptIndices = usedPromptIndices.filter(i => i < prompts.length);
+    savePrompts();
+    renderManager();
+  }
+
+  function resetPrompts() {
+    prompts = [...DEFAULT_PROMPTS];
+    usedPromptIndices = [];
+    savePrompts();
+    renderManager();
+  }
+
+  function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // History
+  function renderHistory() {
+    const container = document.getElementById('historyList');
+    if (sessions.length === 0) {
+      container.className = 'history-empty';
+      container.textContent = 'No completed sprints yet.';
+      return;
+    }
+    container.className = 'history-list';
+    container.innerHTML = sessions.map(s => {
+      const timeStr = s.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return `<div class="history-item">
+        <span>${s.duration}m sprint at ${timeStr}</span>
+        <span>${s.words} words | ${s.wpm} wpm | ${s.thinking} "thinking"</span>
+      </div>`;
+    }).reverse().join('');
+  }
+
+  // Close manager on overlay click
+  document.getElementById('managerOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('managerOverlay')) closeManager();
+  });
+
+  renderTimer();
+</script>
+</body>
+</html>
